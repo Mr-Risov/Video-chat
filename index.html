@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Chat</title>
+  <style>
+    body {
+      display: flex;
+      align-items: stretch;
+      height: 50vh;
+      margin: 0;
+    }
+
+    #video-container {
+      display: flex;
+      width: 50%;
+      flex-direction: column;
+    }
+
+    #self-video,
+    #video-chat-room {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 2px solid blue;
+      overflow: hidden;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #right-panel {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #title {
+      padding: 10px;
+      background-color: #ccc;
+      text-align: center;
+    }
+
+    #chat-box {
+      flex: 1;
+      border: 2px solid red;
+      overflow-y: scroll;
+      color: black;
+      display: flex;
+      flex-direction: column-reverse;
+    }
+
+    .message {
+      margin: 5px;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      max-width: calc(100% - 20px);
+    }
+
+    #send-button {
+      width: calc(100% - 20px);
+      margin: 10px;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    #chat-input {
+      width: calc(100% - 20px);
+      margin: 10px;
+      padding: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="video-container">
+    <div id="self-video">
+      <video id="localVideo"></video>
+    </div>
+
+    <div id="video-chat-room">
+      <!-- The remote video will be appended here dynamically -->
+    </div>
+  </div>
+
+  <div id="right-panel">
+    <div id="title">Video Chat</div>
+
+    <div id="chat-box">
+      <div id="chat"></div>
+      <button id="send-button" onclick="sendMessage()">Send</button>
+      <input type="text" id="chat-input" placeholder="Type your message...">
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/piesocket-js@2"></script>
+  <script>
+    var username = "user_" + (Math.floor(Math.random() * 1000));
+var chatMessages = document.getElementById('chat-box');
+var chatMessageInput = document.getElementById('chat-input');
+var localVideo = document.getElementById("localVideo");
+
+var piesocket = new PieSocket({
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Chat</title>
+  <style>
+    body {
+      display: flex;
+      align-items: stretch;
+      height: 50vh;
+      margin: 0;
+    }
+
+    #video-container {
+      display: flex;
+      width: 50%;
+      flex-direction: column;
+    }
+
+    #self-video,
+    #video-chat-room {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 2px solid blue;
+      overflow: hidden;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #right-panel {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #title {
+      padding: 10px;
+      background-color: #ccc;
+      text-align: center;
+    }
+
+    #chat-box {
+      flex: 1;
+      border: 2px solid red;
+      overflow-y: scroll;
+      color: black;
+      display: flex;
+      flex-direction: column-reverse;
+    }
+
+    .message {
+      margin: 5px;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border-radius: 8px;
+      max-width: calc(100% - 20px);
+    }
+
+    #send-button {
+      width: calc(100% - 20px);
+      margin: 10px;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    #chat-input {
+      width: calc(100% - 20px);
+      margin: 10px;
+      padding: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="video-container">
+    <div id="self-video">
+      <video id="localVideo"></video>
+    </div>
+
+    <div id="video-chat-room">
+      <!-- The remote video will be appended here dynamically -->
+    </div>
+  </div>
+
+  <div id="right-panel">
+    <div id="title">Video Chat</div>
+
+    <div id="chat-box">
+      <div id="chat"></div>
+      <button id="send-button" onclick="sendMessage()">Send</button>
+      <input type="text" id="chat-input" placeholder="Type your message...">
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/piesocket-js@2"></script>
+  <script>
+    var username = "user_" + (Math.floor(Math.random() * 1000));
+var chatMessages = document.getElementById('chat-box');
+var chatMessageInput = document.getElementById('chat-input');
+var localVideo = document.getElementById("localVideo");
+
+var piesocket = new PieSocket({
+  clusterId: 's11671.blr1',
+  apiKey: 'hpVF7xHO2zSBynXRak9AwNQtTWrtPbXmfU1zlbRX',
+  consoleLogs: true,
+  notifySelf: true,
+  presence: true,
+  userId: username
+});
+
+var channel;
+piesocket.subscribe("chat-room").then(ch => {
+  channel = ch;
+
+  channel.listen("system:member_joined", function (data) {
+    if (data.member.user == username) {
+      data.member.user = "<b>You</b>";
+    }
+
+    chatMessages.insertAdjacentHTML('beforeend', `<div>${data.member.user} joined the chat</div>`);
+    scrollToBottom();
+  });
+
+  channel.listen("new_message", function (data, meta) {
+    if (data.sender == username) {
+      data.sender = "<b>You</b>";
+    }
+
+    chatMessages.insertAdjacentHTML('beforeend', `<div>${data.sender}: ${data.text}</div>`);
+    scrollToBottom();
+  });
+});
+
+piesocket.subscribe("video-chat-room", {
+  video: true,
+  audio: true,
+  onLocalVideo: (stream, video) => {
+    localVideo.muted = true;
+    localVideo.autoplay = true;
+    localVideo.srcObject = stream;
+  },
+  onParticipantJoined: (uuid, stream) => {
+    var videoHolder = document.createElement("video");
+    videoHolder.setAttribute("autoplay", true);
+    videoHolder.srcObject = stream;
+    videoHolder.id = uuid;
+    document.getElementById("video-chat-room").append(videoHolder);
+  },
+  onParticipantLeft: (uuid) => {
+    var videoElement = document.getElementById(uuid);
+    if (videoElement) {
+      videoElement.remove();
+    }
+  }
+});
+
+function sendMessage() {
+  if (!channel) {
+    alert("Channel is not connected yet, wait a sec");
+    return;
+  }
+
+  var message = chatMessageInput.value;
+
+  if (message.trim() !== "") {
+    channel.publish("new_message", {
+      sender: username,
+      text: message
+    });
+
+    chatMessageInput.value = "";
+  }
+}
+
+function scrollToBottom() {
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    </script>
+</body>
+
+</html>
+  
